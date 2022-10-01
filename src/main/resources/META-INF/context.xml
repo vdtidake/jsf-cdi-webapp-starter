@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiResourceLocking="false" path="" reloadable="false">
+    <Resource name="BeanManager"
+              auth="Container"
+              factory="org.jboss.weld.resources.ManagerObjectFactory"
+              type="javax.enterprise.inject.spi.BeanManager"/>
+</Context>
