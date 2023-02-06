@@ -25,7 +25,45 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <version.shrinkwrap.resolvers>3.1.4</version.shrinkwrap.resolvers>
+        <org.apache.tomcat.version>9.0.70</org.apache.tomcat.version>
+
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>1.4.1.Final</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <!-- Arquillian Drone dependencies and WebDriver/Selenium dependencies -->
+            <dependency>                                      <!-- Selenium bom is optional as it is included in arquillian-bom -->
+                <groupId>org.jboss.arquillian.selenium</groupId>
+                <artifactId>selenium-bom</artifactId>
+                <version>3.13.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.extension</groupId>
+                <artifactId>arquillian-drone-bom</artifactId>
+                <version>2.5.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.resolver</groupId>
+                <artifactId>shrinkwrap-resolver-depchain</artifactId>
+                <version>${version.shrinkwrap.resolvers}</version>
+                <scope>test</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- tomcat -->
@@ -74,14 +112,139 @@
             <version>1.0.2</version>
         </dependency>
 
+        <!-- -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>1.1.11.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-spi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <!-- Graphene -->
+        <dependency>
+            <groupId>org.jboss.arquillian.graphene</groupId>
+            <artifactId>graphene-webdriver</artifactId>
+            <version>2.3.2</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-tomcat-embedded-9</artifactId>
+            <version>1.1.0.Final</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.enterprise</groupId>
+                    <artifactId>cdi-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${org.apache.tomcat.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>${org.apache.tomcat.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-websocket</artifactId>
+            <version>${org.apache.tomcat.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jsp-api</artifactId>
+            <version>${org.apache.tomcat.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>ROOT</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.2.3</version>
+                <configuration>
+                    <failOnMissingWebXml>true</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                    <webappDirectory>${project.build.directory}/webapp</webappDirectory>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <warSourceExcludes>**/resources/**/*.css,**/resources/**/*.js</warSourceExcludes>
+                    <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M8</version>
+                <configuration>
+                    <argLine>
+                        --add-exports=java.base/sun.nio.ch=ALL-UNNAMED
+                        --add-opens=java.base/java.lang=ALL-UNNAMED
+                        --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens=java.base/java.io=ALL-UNNAMED
+                        --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
+                    </argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>

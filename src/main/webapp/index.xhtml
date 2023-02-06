@@ -10,8 +10,8 @@
 
 </h:head>
 <h:body>
-    <p:growl id="growl" globalOnly="false"/>
-    <h:form id="messageForm">
+    <p:messages id="messages"/>
+    <h:form id="playerForm">
         <h:panelGrid id="player" columns="3">
             <p:outputLabel value="Name"></p:outputLabel>
             <p:inputText id="name" value="#{playerBean.currentPlayer.name}"
@@ -25,7 +25,7 @@
             <p:message for="age" display="icon"/>
         </h:panelGrid>
 
-        <p:commandButton actionListener="#{playerBean.processPlayer}"
+        <p:commandButton id="addPlayer" actionListener="#{playerBean.processPlayer}"
                          process="@this player"
                          update="players player" value="Add Player"/>
 
